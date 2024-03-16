@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEUILLE D'INTERVENTION</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            text-transform: uppercase;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+        label > span {
+            margin-right: 10px;
+            width: 200px; /* Ajustez la largeur du span selon vos besoins */
+            text-align: left;
+        }
+        input, select, textarea {
+            margin-bottom: 10px;
+            width: calc(100% - 210px); /* Ajustement pour la largeur du champ */
+            box-sizing: border-box;
+            border-radius: 5px; /* Coins arrondis */
+            border: 1px solid #ccc; /* Bordure */
+            padding: 8px; /* Espacement intérieur */
+        }
+        input[type="submit"], button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px; /* Augmentation du rayon de la bordure */
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajout d'une légère ombre */
+        }
+        input[type="submit"]:hover, button:hover {
+            background-color: #45a049;
+        }
+        .option-buttons {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .option-buttons button {
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px; /* Augmentation du rayon de la bordure */
+            cursor: pointer;
+            background-color: #f0f0f0;
+            color: #333;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajout d'une légère ombre */
+        }
+        .option-buttons button.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .export-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>FEUILLE D'INTERVENTION</h2>
+    <form id="infoForm">
+        <label>
+            <span>Numéro d'équipement :</span>
+            <input type="text" id="numero" name="numero" inputmode="numeric">
+        </label>
+        
+        <label>
+            <span>Emplacement :</span>
+            <input type="text" id="emplacement" name="emplacement">
+        </label>
+        
+        <label>
+            <span>Type :</span>
+            <select id="type" name="type">
+                <option value="type1">Type 1</option>
+                <option value="type2">Type 2</option>
+                <option value="type3">Type 3</option>
+                <option value="type4">Type 4</option>
+            </select>
+        </label>
+        
+        <label>
+            <span>Capacité :</span>
+            <select id="capacite" name="capacite">
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+                <option value="option4">Option 4</option>
+            </select>
+        </label>
+        
+        <label>
+            <span>Constructeur :</span>
+            <input type="text" id="constructeur" name="constructeur">
+        </label>
+        
+        <label>
+            <span>Date de mise en service :</span>
+            <input type="date" id="date_mise_en_service" name="date_mise_en_service">
+        </label>
+        
+        <label>
+            <span>Date de vérification :</span>
+            <input type="date" id="date_verification" name="date_verification">
+        </label>
+        
+        <div class="option-buttons">
+            <button type="button" class="option-btn" value="recharge">Recharge</button>
+            <button type="button" class="option-btn" value="reprise">Reprise</button>
+            <button type="button" class="option-btn" value="pose">Pose</button>
+            <button type="button" class="option-btn" value="echange_standard">Échange Standard</button>
+            <button type="button" class="option-btn" value="piece_detache">Pièce détachée</button>
+            <button type="button" class="option-btn" value="maintenance_quincaillerie">Maintenance quincaillerie</button>
+            <button type="button" class="option-btn" value="revision_decenale">Révision décennale</button>
+        </div>
+        
+        <label>
+            <span>Commentaire :</span>
+            <textarea id="commentaire" name="commentaire" rows="4" style="width: calc(100% - 210px); box-sizing: border-box; border-radius: 5px;"></textarea>
+        </label>
+        
+        <input type="submit" value="Suivant">
+    </form>
+
+    <div id="saisiesPrecedentes">
+        <!-- Tableau des saisies précédentes -->
+    </div>
+
+    <div class="export-btn">
+        <button type="button" id="exportBtn">Exporter au format Excel</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+    <script>
+        var saisies = []; // Tableau pour stocker les saisies précédentes
+
+        document.getElementById('infoForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêcher la soumission du formulaire
+
+            // Récupération des valeurs saisies
+            var numero = document.getElementById('numero').value;
+            var emplacement = document.getElementById('emplacement').value;
+            var type = document.getElementById('type').value;
+            var capacite = document.getElementById('capacite').value;
+            var constructeur = document.getElementById('constructeur').value;
+            var date_mise_en_service = formatDate(document.getElementById('date_mise_en_service').value);
+            var date_verification = formatDate(document.getElementById('date_verification').value);
+            var options = Array.from(document.querySelectorAll('.option-btn')).filter(btn => btn.classList.contains('selected')).map(btn => btn.value);
+            var commentaire = document.getElementById('commentaire').value;
+
+            // Ajout des valeurs saisies au tableau
+            saisies.push({
+                "Numéro d'équipement": numero,
+                "Emplacement": emplacement,
+                "Type": type,
+                "Capacité": capacite,
+                "Constructeur": constructeur,
+                "Date de mise en service": date_mise_en_service,
+                "Date de vérification": date_verification,
+                "Options": options.join(', '),
+                "Commentaire": commentaire
+            });
+
+            // Réinitialisation du formulaire
+            document.getElementById('infoForm').reset();
+
+            // Mise à jour immédiate du tableau des résultats
+            afficherTableau();
+        });
+
+        document.querySelectorAll('.option-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        function formatDate(dateString) {
+            if (!dateString) return ''; // Pour gérer les dates vides
+            const date = new Date(dateString);
+            const day = ('0' + date.getDate()).slice(-2);
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const year = date.getFullYear().toString().slice(-2);
+            return day + ' ' + month + ' ' + year;
+        }
+
+        function afficherTableau() {
+            var html = '<h2>Éléments saisis précédemment :</h2>';
+            html += '<table>';
+            html += '<tr>';
+            for (var key in saisies[0]) {
+                html += '<th>' + key + '</th>';
+            }
+            html += '</tr>';
+            saisies.forEach(function(saisie) {
+                html += '<tr>';
+                for (var key in saisie) {
+                    html += '<td>' + saisie[key] + '</td>';
+                }
+                html += '</tr>';
+            });
+            html += '</table>';
+            document.getElementById('saisiesPrecedentes').innerHTML = html;
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            exportToExcel(saisies);
+        });
+
+        function exportToExcel(data) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Feuille d\'intervention');
+            XLSX.writeFile(wb, 'feuille_intervention.xlsx');
+        }
+    </script>
+</body>
+</html>
